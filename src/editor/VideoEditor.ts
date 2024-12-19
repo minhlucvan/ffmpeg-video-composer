@@ -77,7 +77,7 @@ class VideoEditor {
       });
 
       // Delete concatenation file
-      await this.filesystemAdapter.unlink(this.project.buildInfos.fileConcatPath);
+      // await this.filesystemAdapter.unlink(this.project.buildInfos.fileConcatPath);
 
       this.emitter.emit('compilation-progress', 1);
       this.logger.info('[End] project cleaned');

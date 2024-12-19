@@ -13,7 +13,7 @@ import FormattersManager from './managers/FormatterManager';
 
 @autoInjectable()
 class SegmentBuilder {
-  protected command: string = '-version';
+  protected command: string = ' -version';
 
   protected filters: string = ''; // FFmpeg filters
   protected sources: string[] = []; // FFmpeg inputs
@@ -98,7 +98,7 @@ class SegmentBuilder {
     } catch (error) {
       this.logger.error(error);
 
-      return false;
+      throw error;
     }
 
     // Configure Hardware Acceleration

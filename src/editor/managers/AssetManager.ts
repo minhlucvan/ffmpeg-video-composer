@@ -22,6 +22,7 @@ class AssetManager {
     this.segment.assetsDir = await this.filesystemAdapter.getBuildPath('assets');
     this.segment.fontsDir = await this.filesystemAdapter.getBuildPath('fonts');
     this.segment.animationsDir = await this.filesystemAdapter.getBuildPath('animations');
+    this.segment.tempDir = await this.filesystemAdapter.getBuildPath('temp');
   }
 
   prepareAssets = (): void => {
@@ -30,6 +31,7 @@ class AssetManager {
         this.segment.currentSection.inputs = this.segment.currentSection.inputs.concat({
           name: this.segment.currentSection.name,
           url: this.segment.currentSection.options[key],
+          extension: this.segment.currentSection.options.extension,
         });
       }
     }
@@ -138,6 +140,7 @@ class AssetManager {
       const path = await this.filesystemAdapter.fetch(url);
       const targetPath = `${this.segment.assetsDir}/${name}.${extension}`;
 
+      this.logger.info(`[${this.segment.currentSection.name}][Media] moving asset ${name} to ${targetPath}`);
       await this.filesystemAdapter.move(path as string, targetPath);
 
       this.template.assets.inputs[url] = targetPath;
@@ -160,7 +163,7 @@ class AssetManager {
   };
 
   extractFromMedia = (media: Media, frame = 0): Media => {
-    const extension = this.getExtensionFromUrl(media.url);
+    const extension = media.extension || this.getExtensionFromUrl(media.url);
     let url = this.variableManager.mapVariables(media.url);
     let name = this.generateName(media, url, frame);
 

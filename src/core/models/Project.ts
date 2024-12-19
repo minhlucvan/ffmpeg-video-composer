@@ -1,6 +1,7 @@
 import { singleton } from 'tsyringe';
 import { ProjectBuildInfos, ProjectConfig } from '../types';
 import defaultConfig from '../default.config';
+import os from 'os';
 
 @singleton()
 class Project {
@@ -54,6 +55,7 @@ class Project {
         ...this.config.videoConfig,
       },
       currentLocale: this.config.currentLocale ?? defaultConfig.CURRENT_LOCALE,
+      tempDir: os.tmpdir(),
       ...this.config,
     };
   };

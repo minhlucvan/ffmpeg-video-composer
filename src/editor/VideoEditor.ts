@@ -7,6 +7,7 @@ import Template from '../core/models/Template';
 import Project from '../core/models/Project';
 import { Section } from '@/core/types';
 import MusicComposer from './MusicComposer';
+import CaptionComposer from './CaptionComposer';
 
 @injectable()
 class VideoEditor {
@@ -16,6 +17,7 @@ class VideoEditor {
     private readonly project: Project,
     private readonly template: Template,
     private readonly musicComposer: MusicComposer,
+    private readonly captionComposer: CaptionComposer,
 
     @inject('logger') private readonly logger: AbstractLogger,
     @inject('ffmpegAdapter') private readonly ffmpegAdapter: AbstractFFmpeg,
@@ -56,6 +58,11 @@ class VideoEditor {
       await this.musicComposer.loopMusic();
 
       await this.musicComposer.appendMusic(segments, this.project.finalVideo);
+    }
+
+    // Burn captions if any
+    if (this.template.descriptor.global.subtitlesEnabled) {
+      await this.captionComposer.burnCaptions(this.project.finalVideo);
     }
 
     // Finalize only if no errors had been rejected

@@ -38,6 +38,10 @@ abstract class AbstractFilesystem {
     this.segmentName = segmentName;
   };
 
+  setTempDir = (tempDir: string) => {
+    this.tempDir = tempDir;
+  };
+
   getTempDir = () => {
     return this.tempDir;
   };

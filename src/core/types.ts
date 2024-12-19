@@ -2,6 +2,7 @@ export type LogParams = Record<string, unknown>;
 
 export type ProjectConfig = {
   buildDir?: string;
+  tempDir?: string;
   assetsDir?: string;
   music?: MusicConfig;
   fields?: Record<string, string>;
@@ -10,6 +11,12 @@ export type ProjectConfig = {
   hardwareConfig?: HardwareConfig;
   audioConfig?: AudioConfig;
   videoConfig?: VideoConfig;
+  subtitles?: SubtitleConfig;
+};
+
+type SubtitleConfig = {
+  name: string;
+  url?: string;
 };
 
 type MusicConfig = {
@@ -50,6 +57,7 @@ export type ProjectBuildInfos = {
   musicFilters: string[];
   fileConcatPath: string;
   musicPath: string;
+  subtitlePath?: string;
 };
 
 // Descriptor
@@ -66,6 +74,8 @@ interface TemplateDescriptorGlobal {
   audioVolumeLevel?: number;
   transitionDuration?: number;
   music?: MusicConfig;
+  subtitlesEnabled?: boolean;
+  subtitles?: SubtitleConfig;
 }
 
 export interface Variables {
@@ -99,11 +109,13 @@ interface SectionOptions {
   backgroundColor?: string;
   forceAspectRatio?: boolean;
   forceOriginalAspectRatio?: boolean;
+  extension?: string;
 }
 
 interface Input {
   name: string;
   url: string;
+  extension?: string;
 }
 
 export interface Map {

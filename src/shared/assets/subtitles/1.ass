@@ -1,0 +1,19 @@
+[Script Info]
+; // 此字幕由爱幕生成
+Synch Point:1
+ScriptType:v4.00+
+Collisions:Normal
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default, Source Han Sans CN Normal, 20, &H00FFFFFF, &H00FFFFFF, &H00000000, &H00000000, 0, 0, 0, 0, 100, 100, 0, 0, 1, 1, 2, 2, 10, 10, 10, 134
+
+
+[Events]
+Format: Layer, Start, End, Style, Actor, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.00,0:00:03.00,Default,NTP,0000,0000,0000,,新冠居家常备药物都有哪些呢
+Dialogue: 0,0:00:03.00,0:00:07.00,Default,NTP,0000,0000,0000,,布洛芬
+Dialogue: 0,0:00:07.00,0:00:13.00,Default,NTP,0000,0000,0000,,抗原氏剂
+Dialogue: 0,0:00:13.00,0:00:18.00,Default,NTP,0000,0000,0000,,莲花清瘟
+Dialogue: 0,0:00:18.00,0:00:25.00,Default,NTP,0000,0000,0000,,西瓜霜含片
+Dialogue: 0,0:00:25.00,0:00:31.00,Default,NTP,0000,0000,0000,,荷香正气水

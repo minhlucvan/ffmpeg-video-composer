@@ -10,6 +10,7 @@ import { FFMpegInfos, ProjectConfig, Section, TemplateDescriptor } from '@/core/
 import Project from '../core/models/Project';
 import Template from '../core/models/Template';
 import TemplateConcreteBuilder from './TemplateConcreteBuilder';
+import CaptionComposer from '../editor/CaptionComposer';
 
 @injectable()
 class TemplateDirector {
@@ -22,6 +23,7 @@ class TemplateDirector {
     private readonly eventManager: EventManager,
     private readonly concreteBuilder: TemplateConcreteBuilder,
     private readonly musicComposer: MusicComposer,
+    private readonly captionComposer: CaptionComposer,
     private readonly videoEditor: VideoEditor,
 
     private project: Project,
@@ -44,6 +46,8 @@ class TemplateDirector {
     this.template.descriptor = templateDescriptor;
 
     this.filesystemAdapter.setBuildDir(this.project.config.buildDir || 'build');
+    this.filesystemAdapter.setTempDir(`${this.filesystemAdapter.getBuildDir()}/temp`);
+
     this.filesystemAdapter.setAssetsDir(this.project.config.assetsDir || 'assets');
 
     this.project.applyDefault();
@@ -69,6 +73,8 @@ class TemplateDirector {
     this.project.buildInfos.fileConcatPath = `${this.filesystemAdapter.getBuildDir()}/segments.list`;
 
     await this.musicComposer.loadMusic();
+
+    await this.captionComposer.loadSubtitles();
 
     await this.filesystemAdapter.write(this.project.buildInfos.fileConcatPath);
 

@@ -1,0 +1,27 @@
+{
+  "global": {
+    "variables": {
+      "videoSample": "https://vz-86bd08a7-c90.b-cdn.net/c01f015e-d9e0-41c2-b948-010d84311379/original"
+    },
+    "subtitles": {
+      "name": "1.ass"
+    },
+    "orientation": "landscape",
+    "musicEnabled": false,
+    "subtitlesEnabled": true,
+    "transitionDuration": 0
+  },
+  "sections": [
+    {
+      "name": "test_video_1",
+      "type": "video",
+      "visibility": ["video_segment"],
+      "options": {
+        "videoUrl": "{{ videoSample }}",
+        "extension": "mp4",
+        "duration": 32
+      },
+      "filters": []
+    }
+  ]
+}

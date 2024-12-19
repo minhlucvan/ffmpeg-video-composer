@@ -4,6 +4,7 @@ import { Section } from '../types';
 @injectable()
 class Segment {
   public currentSection: Section;
+  public tempDir: string = '';
 
   public filtersList: string[] = [];
   public filtersMapList: string[] = [];

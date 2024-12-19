@@ -26,10 +26,12 @@ class VideoEditor {
   ) {}
 
   concat = async (): Promise<void> => {
+    this.logger.info('[Concat] Starting concatenation process');
     const fileList = await this.filesystemAdapter.read(this.project.buildInfos.fileConcatPath);
     const files = fileList.split('\n').filter(Boolean);
 
     if (files.length === 1) {
+      this.logger.info(`[Concat] Single file detected: ${files[0]} -> ${this.project.finalVideo}`);
       await this.filesystemAdapter.copy(files[0].replace('file ', ''), this.project.finalVideo);
       this.logger.info(`[Concat][Command] Copied single file to ${this.project.finalVideo}`);
     } else {
@@ -53,6 +55,7 @@ class VideoEditor {
    * Attach mounted video to the current project
    */
   finalize = async (segments: Section[]): Promise<void> => {
+    this.logger.info('[End] Finalizing project');
     // Append music if option is enabled
     if (this.template.descriptor.global.musicEnabled) {
       await this.musicComposer.loopMusic();

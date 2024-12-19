@@ -9,6 +9,7 @@ import Project from '../core/models/Project';
 class CaptionComposer {
   private buildAssetsDir: string;
   private subtitleAssetsDir: string;
+  private fontsAssetsDir: string;
 
   constructor(
     private readonly project: Project,
@@ -25,6 +26,7 @@ class CaptionComposer {
   loadSubtitles = async (): Promise<void> => {
     this.buildAssetsDir = await this.filesystemAdapter.getBuildPath('assets');
     this.subtitleAssetsDir = await this.filesystemAdapter.getAssetsPath('subtitles');
+    this.fontsAssetsDir = await this.filesystemAdapter.getAssetsPath('fonts');
 
     // Check project or template for subtitle configuration
     if (!this.project.config.subtitles) {
@@ -93,11 +95,11 @@ class CaptionComposer {
     const subtitleFile = this.project.buildInfos.subtitlePath;
 
     // Check if both finalVideo and subtitleFile exist
-    const inputExists = await this.filesystemAdapter.stat(finalVideo);
+    const inputExists = await this.filesystemAdapter.stat(temp);
     const subtitleExists = await this.filesystemAdapter.stat(subtitleFile);
 
     if (!inputExists) {
-      throw new Error(`[Captions] Input video file does not exist: ${finalVideo}`);
+      throw new Error(`[Captions] Input video file does not exist: ${temp}`);
     }
 
     if (!subtitleExists) {
@@ -108,11 +110,12 @@ class CaptionComposer {
     // Example:
     // ffmpeg -i input.mp4 -vf "scale=1280:-1,ass=subtitle.ass:fontsdir=/tmp" -c:a copy -preset fast output.mp4
     // If no scaling needed, just omit scale.
-    const fontsDir = '/tmp'; // Ensure fonts are in this directory if needed.
+    const fontsDir = this.fontsAssetsDir;
     let vfFilters = `${scale}ass=${subtitleFile}:fontsdir=${fontsDir}`;
     vfFilters = vfFilters.replace(/,\s*$/, ''); // Remove trailing commas if any
 
     const command = [
+      '',
       '-y',
       '-i',
       temp,

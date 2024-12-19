@@ -83,6 +83,23 @@ class AssetManager {
     }
   };
 
+  fetchFont = async (font: string): Promise<void> => {
+    const fontFile = font.split('-')[0].split('.')[0];
+    const fontDir = await this.filesystemAdapter.getBuildPath('fonts');
+    const targetPath = `${fontDir}/${fontFile}.ttf`;
+
+    if (!this.template.assets.inputs[font]) {
+      const url = `https://fonts.googleapis.com/css?family=${fontFile}`;
+
+      const cssContent = await this.filesystemAdapter.fetchAndRead(url);
+      const fontUrl = this.extractFontUrlFromCSS(cssContent as string);
+
+      const path = await this.filesystemAdapter.fetch(fontUrl);
+
+      await this.filesystemAdapter.move(path as string, targetPath);
+    }
+  }
+
   fetchFonts = async (): Promise<void> => {
     for (let i = 0; i < this.segment.tempFonts.length; i++) {
       const fontFile = this.segment.tempFonts[i];

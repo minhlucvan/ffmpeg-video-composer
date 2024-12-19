@@ -4,7 +4,8 @@
       "videoSample": "https://vz-86bd08a7-c90.b-cdn.net/c01f015e-d9e0-41c2-b948-010d84311379/original"
     },
     "subtitles": {
-      "name": "1.ass"
+      "name": "1.ass",
+      "fonts": ["Roboto"]
     },
     "orientation": "landscape",
     "musicEnabled": false,

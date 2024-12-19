@@ -17,6 +17,7 @@ export type ProjectConfig = {
 type SubtitleConfig = {
   name: string;
   url?: string;
+  fonts?: string[];
 };
 
 type MusicConfig = {

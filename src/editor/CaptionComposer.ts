@@ -4,6 +4,7 @@ import AbstractFFmpeg from '../platform/ffmpeg/AbstractFFmpeg';
 import AbstractFilesystem from '../platform/filesystem/AbstractFilesystem';
 import Template from '../core/models/Template';
 import Project from '../core/models/Project';
+import AssetManager from './managers/AssetManager';
 
 @injectable()
 class CaptionComposer {
@@ -14,6 +15,8 @@ class CaptionComposer {
   constructor(
     private readonly project: Project,
     private readonly template: Template,
+    private readonly assetsManager: AssetManager,
+
     @inject('logger') private readonly logger: AbstractLogger,
     @inject('ffmpegAdapter') private readonly ffmpegAdapter: AbstractFFmpeg,
     @inject('filesystemAdapter') private readonly filesystemAdapter: AbstractFilesystem
@@ -24,6 +27,8 @@ class CaptionComposer {
    * If the project or template has a configuration for captions, we ensure the file exists.
    */
   loadSubtitles = async (): Promise<void> => {
+    this.logger.info('[Captions] Loading subtitles...');
+
     this.buildAssetsDir = await this.filesystemAdapter.getBuildPath('assets');
     this.subtitleAssetsDir = await this.filesystemAdapter.getAssetsPath('subtitles');
     this.fontsAssetsDir = await this.filesystemAdapter.getAssetsPath('fonts');
@@ -58,6 +63,14 @@ class CaptionComposer {
       // If no URL provided and not in cache, we cannot proceed
       this.logger.info('[Captions] Subtitle URL not provided and not in cache.');
     }
+
+    // load fonts
+    if (this.project.config.subtitles.fonts) {
+      for (const font of this.project.config.subtitles.fonts) {
+        await this.assetsManager.fetchFont(font);
+        this.logger.info(`[Captions] Fetching font ${font}`);
+      }
+    }
   };
 
   private async downloadAndSaveSubtitle(url: string, destination: string): Promise<void> {
@@ -81,6 +94,7 @@ class CaptionComposer {
    * @param burnPreset The ffmpeg preset for encoding speed/quality.
    */
   burnCaptions = async (finalVideo: string, scale: string = '', burnPreset: string = 'fast'): Promise<void> => {
+    this.logger.info('[Captions] Burning subtitles...');
     if (!this.project.buildInfos.subtitlePath) {
       this.logger.info('[Captions] No subtitles to burn. Skipping.');
       // Just copy the input to output if no captions (or do nothing)

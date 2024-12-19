@@ -124,7 +124,7 @@ class CaptionComposer {
     // Example:
     // ffmpeg -i input.mp4 -vf "scale=1280:-1,ass=subtitle.ass:fontsdir=/tmp" -c:a copy -preset fast output.mp4
     // If no scaling needed, just omit scale.
-    const fontsDir = this.fontsAssetsDir;
+    const fontsDir = await this.filesystemAdapter.getAssetsPath('fonts');
     let vfFilters = `${scale}ass=${subtitleFile}:fontsdir=${fontsDir}`;
     vfFilters = vfFilters.replace(/,\s*$/, ''); // Remove trailing commas if any
 

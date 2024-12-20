@@ -61,8 +61,13 @@ class TemplateDirector {
     try {
       await this.init();
 
-      await this.compileAudioSegments();
       await this.compileVideoSegments();
+
+      if (this.template.descriptor.global.audioEnabled) {
+        await this.compileAudioSegments();
+      }
+
+      await this.videoEditor.finalize();
     } catch (err) {
       this.fireError(err);
 
@@ -87,6 +92,8 @@ class TemplateDirector {
   };
 
   compileVideoSegments = async (): Promise<void> => {
+    this.logger.info('[TemplateDirector] Compiling video segments');
+
     const sections = this.template.descriptor.sections;
     const videoSegments = this.filterVideoSections(sections);
 
@@ -100,6 +107,7 @@ class TemplateDirector {
     if (!this.stopBuild) {
       await this.finalizeCompilation(videoSegments);
     }
+    this.logger.info('[TemplateDirector] Compilation done');
   };
 
   compileAudioSegments = async (): Promise<void> => {
@@ -177,10 +185,16 @@ class TemplateDirector {
   finalizeCompilation = async (segments: Section[]): Promise<void> => {
     await this.videoEditor.concat();
 
-    await this.videoEditor.finalize(segments);
+    // Append music if option is enabled
+    if (this.template.descriptor.global.musicEnabled) {
+      await this.musicComposer.loopMusic();
+
+      await this.musicComposer.appendMusic(segments, this.project.finalVideo);
+    }
   };
 
   fetchSectionInfos = async (section: { name: string }): Promise<FFMpegInfos> => {
+    this.logger.info(`[${section.name}][Editing] fetching infos`);
     const source = `${this.filesystemAdapter.getAssetsDir('videos')}/${section.name}.mp4`;
     const info = await this.ffmpegAdapter.getInfos(source);
 
@@ -192,10 +206,15 @@ class TemplateDirector {
   };
 
   addToQueue = async (section: Section): Promise<void> => {
+    this.logger.info(`[${section.name}][Editing] started`);
+
     this.builder = this.concreteBuilder;
 
     // First, build configuration and retrieve updated assets
     await this.builder.buildPart(section);
+
+    // Then, prepare part
+    await this.builder.preparePart();
 
     // Then, compile part with FFmpeg
     await this.builder.renderPart();
@@ -205,6 +224,8 @@ class TemplateDirector {
 
     // Append file for concat
     await this.append(section);
+
+    this.logger.info(`[${section.name}][Editing] finalized`);
   };
 
   append = async (section: Section): Promise<void> => {

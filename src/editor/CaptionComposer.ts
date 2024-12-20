@@ -144,7 +144,7 @@ class CaptionComposer {
       finalVideo,
     ].join(' ');
 
-    this.logger.debug(`[Captions][Command] ffmpeg ${command}`);
+    this.logger.info(`[Captions][Command] Starts burning subtitles `);
     const result = await this.ffmpegAdapter.execute(command);
     this.logger.info(`[Captions] ffmpeg process exited with rc ${result.rc}`);
 

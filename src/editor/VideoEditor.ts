@@ -58,14 +58,8 @@ class VideoEditor {
   /**
    * Attach mounted video to the current project
    */
-  finalize = async (segments: Section[]): Promise<void> => {
+  finalize = async (): Promise<void> => {
     this.logger.info('[End] Finalizing project');
-    // Append music if option is enabled
-    if (this.template.descriptor.global.musicEnabled) {
-      await this.musicComposer.loopMusic();
-
-      await this.musicComposer.appendMusic(segments, this.project.finalVideo);
-    }
 
     // append audio if any
     if (this.template.descriptor.global.audioEnabled) {

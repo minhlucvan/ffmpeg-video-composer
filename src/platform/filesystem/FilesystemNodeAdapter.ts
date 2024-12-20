@@ -34,7 +34,7 @@ class FilesystemNodeAdapter extends AbstractFilesystem {
       segmentName = this.segmentName;
     }
 
-    return segmentName ? path.join(this.assetsDir, 'videos', `${segmentName}.mp4`) : '';
+    return segmentName ? path.join(this.buildDir, 'assets', `${segmentName}.mp4`) : '';
   };
 
   getDestination = (): string => path.join(this.buildDir, `${this.segmentName}_output.mp4`);
@@ -42,22 +42,27 @@ class FilesystemNodeAdapter extends AbstractFilesystem {
   fetch = async (url: string): Promise<string> => {
     const dest = path.join(this.tempDir, path.basename(url));
 
-    const response = await axios({
-      method: 'get',
-      url,
-      responseType: 'stream',
-      timeout: 0,
-    });
+    try {
+      const response = await axios({
+        method: 'get',
+        url,
+        responseType: 'stream',
+        timeout: 0,
+      });
 
-    const writer = createWriteStream(dest);
-    response.data.pipe(writer);
+      const writer = createWriteStream(dest);
+      response.data.pipe(writer);
 
-    await new Promise((resolve, reject) => {
-      writer.on('finish', resolve);
-      writer.on('error', reject);
-    });
+      await new Promise((resolve, reject) => {
+        writer.on('finish', resolve);
+        writer.on('error', reject);
+      });
 
-    return dest;
+      return dest;
+    } catch (error) {
+      this.logger.error(`Error fetching from ${url}`);
+      throw new Error(`Error fetching from ${url}: ${error}`);
+    }
   };
 
   stat = async (filePath: string): Promise<boolean> => {

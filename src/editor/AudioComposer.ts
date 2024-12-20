@@ -5,7 +5,7 @@ import AbstractFilesystem from '../platform/filesystem/AbstractFilesystem';
 import AbstractMusic from '../platform/ffmpeg/AbstractMusic';
 import Template from '../core/models/Template';
 import Project from '../core/models/Project';
-import { TimedMedia } from '@/core/types';
+import { FFMpegInfos, TimedMedia } from '@/core/types';
 
 @injectable()
 class AudioComposer {
@@ -63,6 +63,7 @@ class AudioComposer {
         continue;
       }
 
+      this.logger.info(`[Audio] Loaded ${audio.name}`);
       this.project.buildInfos.audiosSegments.push({
         name: audio.name,
         path: audioPath,
@@ -70,6 +71,35 @@ class AudioComposer {
           ...audio.options,
         },
       });
+    }
+
+    this.logger.info(`[Audio] Loaded all audios ${this.project.buildInfos.audiosSegments.length}`);
+
+    // load background audio
+    if (this.template.descriptor.global.audio) {
+      this.logger.info('[Audio] Loading background audio');
+
+      const { name, url } = this.template.descriptor.global.audio;
+      const destination = `${this.buildAssetsDir}/audio_${name}.mp4`;
+      const audioPathInCache = `${this.audioAssetsDir}/audio_${name}.mp4`;
+
+      let audioPath = '';
+
+      if (await this.checkMusicExists(audioPathInCache)) {
+        this.logger.info(`[Audio] Loaded from cache ${audioPathInCache}`);
+        audioPath = audioPathInCache;
+      } else if (url) {
+        this.logger.info(`[Audio] Fetching bg ${name}`);
+        await this.downloadAndSaveMusic(url, destination);
+        audioPath = destination;
+      } else {
+        this.logger.error(`[Audio] No URL provided for ${name}`);
+      }
+
+      if (audioPath) {
+        this.project.buildInfos.backgroundAudioPath = audioPath;
+        this.logger.info(`[Audio] Loaded background audio ${name}`);
+      }
     }
   };
 
@@ -87,6 +117,21 @@ class AudioComposer {
 
   private async checkMusicExists(filePath: string): Promise<boolean> {
     return await this.filesystemAdapter.stat(filePath);
+  }
+
+  private fetchSectionInfos = async (source: string): Promise<FFMpegInfos> => {
+    const info = await this.ffmpegAdapter.getInfos(source);
+
+    if (null === info.duration) {
+      throw new Error(`Duration not found for ${source}`);
+    }
+
+    return info;
+  };
+
+  private async getAudioDuration(audioPath: string): Promise<number> {
+    const infos = await this.fetchSectionInfos(audioPath);
+    return infos.duration || 0;
   }
 
   private calculateAudioDuration = (audioSegments: TimedMedia[]): number => {
@@ -136,29 +181,50 @@ class AudioComposer {
   };
 
   composeAudio = async (): Promise<void> => {
+    this.logger.info('[Audio] Composing audio segments...');
+
     if (!this.project.buildInfos.audiosSegments || this.project.buildInfos.audiosSegments.length === 0) {
       this.logger.info('[Audio] No audio segments to compose. Skipping.');
       return;
     }
 
-    this.logger.info('[Audio] Composing audio segments...');
+    this.logger.info('[Audio] Starting audio composition');
 
     const audioSegments = this.project.buildInfos.audiosSegments;
 
     const destination = `${this.buildAssetsDir}/audio.m4a`;
 
-    // Add blank audio as a base with duration
-    const audioDuration = this.calculateAudioDuration(audioSegments);
-    const blankPath = `${this.buildAssetsDir}/blank.m4a`;
-    await this.createBlankAudio(audioDuration, blankPath);
+    const composedAudioSegments = [...audioSegments];
 
-    const blankSegment: TimedMedia = {
-      name: 'blank',
-      path: blankPath,
-      options: { start: 0, duration: audioDuration, frames: 0, end: audioDuration },
-    };
 
-    const composedAudioSegments = [blankSegment, ...audioSegments];
+    // Add blank audio as a base with duration if there are no background audio
+    if (!this.project.buildInfos.backgroundAudioPath) {
+      this.logger.info('[Audio] No background audio found. Adding blank audio as base.');
+
+      const audioDuration = this.calculateAudioDuration(audioSegments);
+      const blankPath = `${this.buildAssetsDir}/blank.m4a`;
+      await this.createBlankAudio(audioDuration, blankPath);
+
+      const blankSegment: TimedMedia = {
+        name: 'blank',
+        path: blankPath,
+        options: { start: 0, duration: audioDuration, frames: 0, end: audioDuration },
+      };
+
+      composedAudioSegments.unshift(blankSegment);
+    } else {
+      // Add background audio as the first segment
+      this.logger.info('[Audio] Adding background audio as the first segment');
+
+      const audioDuration = await this.getAudioDuration(this.project.buildInfos.backgroundAudioPath);
+      const backgroundAudioSegment: TimedMedia = {
+        name: 'background',
+        path: this.project.buildInfos.backgroundAudioPath,
+        options: { start: 0, duration: audioDuration, frames: 0, end: audioDuration, volume: 0.2 },
+      };
+
+      composedAudioSegments.unshift(backgroundAudioSegment);
+    }
 
     const composedAudioCommand = this.buildComposeAudioCommand(composedAudioSegments, destination);
 
@@ -172,6 +238,13 @@ class AudioComposer {
   };
 
   createBlankAudio = async (duration: number, destination: string): Promise<void> => {
+
+    // veryfing if the duration is valid
+    if (Number.isNaN(duration) || duration <= 0) {
+      this.logger.error(`[Audio] Invalid duration ${duration}`);
+      throw new Error('Invalid duration');
+    }
+
     const blankPath = this.addBlankAudio();
     const command = `-y -t ${duration} ${blankPath} ${destination}`;
 
@@ -195,14 +268,16 @@ class AudioComposer {
    * @returns {string} Filter string for the segment
    */
   private buildSegmentFilter = (segment: TimedMedia, index: number): string => {
-    const { start = 0 } = segment.options || {};
+    const { start = 0, volume } = segment.options || {};
     const startMilliseconds = start * 1000;
+
+    const segmentVolume = volume || 1.0;
 
     // Construct the filter components with proper chaining
     const filters = [
       // `atrim=start=${start}${duration ? `:end=${start + durationSeconds}` : ''}`, // Trim audio
       `adelay=${startMilliseconds}:all=1`, // Delay audio
-      `volume=1.0`, // Set volume
+      `volume=${segmentVolume}`, // Set volume
     ].join(','); // Use commas for chaining
 
     const prefix = `[${index}:a]`; // Prefix for input label

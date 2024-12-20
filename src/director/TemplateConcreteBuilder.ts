@@ -6,6 +6,7 @@ import { Section } from '@/core/types';
 import Project from '../core/models/Project';
 import SegmentFactory from '../editor/factories/SegmentFactory';
 import SegmentBuilder from '../editor/SegmentBuilder';
+import Template from '@/core/models/Template';
 
 @injectable()
 class TemplateConcreteBuilder {
@@ -34,6 +35,26 @@ class TemplateConcreteBuilder {
 
     return await this.segment.init();
   };
+
+  preparePart = async (): Promise<void> => {
+    this.logger.info(`[${this.section.name}][PreparePart] start`);
+
+    if (this.segment.shouldExtractAudio()) {
+      this.logger.info(`[${this.section.name}][PreparePart] extracting audio`);
+      const command = this.segment.getAudioCommand();
+      const result = await this.ffmpegAdapter.execute(command);
+      this.logger.info(`[${this.section.name}][PreparePart] ffmpeg process exited with rc ${result.rc}`);
+
+      if (result.rc === 1) {
+        this.project.errors.push(this.section.name);
+      }
+
+      this.logger.info(`[${this.section.name}][PreparePart] audio extracted ${this.segment.extractedAudioPath}`);
+    }
+
+    this.logger.info(`[${this.section.name}][PreparePart] finalized`);
+    this.project.buildInfos.backgroundAudioPath = this.segment.extractedAudioPath;
+  }
 
   /**
    * RenderPart: execute FFmpeg

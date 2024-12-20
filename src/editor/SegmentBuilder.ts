@@ -23,6 +23,7 @@ class SegmentBuilder {
   protected hwaccelArg: string = '';
 
   protected section: Section;
+  extractedAudioPath: any;
 
   constructor(
     protected project: Project,
@@ -113,6 +114,15 @@ class SegmentBuilder {
 
     return true;
   };
+
+  shouldExtractAudio = (): boolean => {
+    return this.section.options.useAudio;
+  }
+
+  getAudioCommand = (): string => {
+    this.extractedAudioPath = this.destination.replace('.mp4', '.aac');
+    return ` -i ${this.source} -vn -acodec copy ${this.extractedAudioPath}`;
+  }
 
   protected configure = (): void => {};
 

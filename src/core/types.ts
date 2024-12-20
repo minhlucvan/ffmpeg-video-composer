@@ -61,6 +61,7 @@ export type ProjectBuildInfos = {
   fileConcatPath: string;
   musicPath: string;
   subtitlePath?: string;
+  backgroundAudioPath?: string;
 };
 
 // Descriptor
@@ -94,6 +95,7 @@ interface TemplateDescriptorGlobal {
   audioVolumeLevel?: number;
   transitionDuration?: number;
   music?: MusicConfig;
+  audio?: MusicConfig;
   subtitlesEnabled?: boolean;
   subtitles?: SubtitleConfig;
   audioEnabled?: boolean;
@@ -132,6 +134,7 @@ interface SectionOptions {
   forceAspectRatio?: boolean;
   forceOriginalAspectRatio?: boolean;
   extension?: string;
+  useAudio?: boolean;
 }
 
 interface Input {
@@ -200,6 +203,7 @@ export type TimedMedia = Media & {
     start: number;
     end: number;
     duration: number;
+    volume?: number;
   };
 };
 

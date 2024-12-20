@@ -10,7 +10,8 @@ import AbstractFFmpeg from './AbstractFFmpeg';
 class FFmpegNodeAdapter extends AbstractFFmpeg {
   execute = (command: string): Promise<{ rc: number }> =>
     new Promise((resolve) => {
-      exec(ffmpegStatic + command, (error) => {
+      const fullCommand = ffmpegStatic + ' ' + command;
+      exec(fullCommand, (error) => {
         if (error) {
           throw new Error(JSON.stringify(error));
         }

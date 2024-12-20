@@ -56,6 +56,8 @@ export type ProjectBuildInfos = {
   videoInputs: string[];
   musicInputs: string[];
   musicFilters: string[];
+  audiosSegments?: TimedMedia[];
+  audioPath?: string;
   fileConcatPath: string;
   musicPath: string;
   subtitlePath?: string;
@@ -65,6 +67,7 @@ export type ProjectBuildInfos = {
 export interface TemplateDescriptor {
   global?: TemplateDescriptorGlobal;
   sections?: Section[];
+  audios?: TimedMedia[];
 }
 
 interface TemplateDescriptorGlobal {
@@ -77,6 +80,7 @@ interface TemplateDescriptorGlobal {
   music?: MusicConfig;
   subtitlesEnabled?: boolean;
   subtitles?: SubtitleConfig;
+  audioEnabled?: boolean;
 }
 
 export interface Variables {
@@ -171,6 +175,14 @@ export type Media = {
   extension?: string;
   options?: {
     frames: number;
+  };
+};
+
+export type TimedMedia = Media & {
+  options: {
+    start: number;
+    end: number;
+    duration: number;
   };
 };
 

@@ -24,7 +24,12 @@ export default [
       ...prettierConfig.rules,
       '@typescript-eslint/dot-notation': 'error',
       'eol-last': 'error',
-      'prettier/prettier': 'error',
+      'prettier/prettier': [
+        "error",
+        {
+          "endOfLine": "auto"
+        }
+      ]
     },
   },
   {

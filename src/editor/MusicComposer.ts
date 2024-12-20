@@ -221,7 +221,10 @@ class MusicComposer {
     }
 
     // Clean up the temporary file
-    await this.filesystemAdapter.unlink(temp);
+    this.logger.info(`[Music] Cleaning up temporary file ${temp}`);
+    // await this.filesystemAdapter.unlink(temp).catch((error) => {
+    //   this.logger.error(`[Music] Error cleaning up temporary file: ${error}`);
+    // });
   };
 }
 

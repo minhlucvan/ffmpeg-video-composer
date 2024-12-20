@@ -7,7 +7,7 @@ const projectConfig: ProjectConfig = {
   assetsDir: './src/shared/assets',
   currentLocale: 'en',
   audioConfig: {
-    sampleRate: 44100,
+    sampleRate: 24000,
     channelLayout: 'stereo',
   },
   videoConfig: {

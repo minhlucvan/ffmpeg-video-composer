@@ -1,0 +1,54 @@
+{
+  "global": {
+    "variables": {
+      "videoSample": "https://vz-86bd08a7-c90.b-cdn.net/c01f015e-d9e0-41c2-b948-010d84311379/original"
+    },
+    "subtitles": {
+      "name": "1.ass",
+      "fonts": [
+        "Roboto"
+      ]
+    },
+    "orientation": "landscape",
+    "musicEnabled": false,
+    "subtitlesEnabled": true,
+    "transitionDuration": 0
+  },
+  "sections": [
+    {
+      "name": "test_video_1",
+      "type": "video",
+      "visibility": [
+        "video_segment"
+      ],
+      "options": {
+        "videoUrl": "{{ videoSample }}",
+        "extension": "mp4",
+        "duration": 32
+      },
+      "filters": []
+    }
+  ],
+  "audios": [
+    {
+      "name": "3caf6d16-a864-4438-9808-5f572755b8eb",
+      "url": "https://visub.oneflow.vn/editor/api/tmp/download-mp4-1734394889590/speech/3caf6d16-a864-4438-9808-5f572755b8eb-1734590828.mp3",
+      "extension": "mp3",
+      "options": {
+        "start": 0.0,
+        "end": 3.672,
+        "duration": 3.672
+      }
+    },
+    {
+      "name": "49a353d7-ce98-4633-a6bd-48e5744d6b1d",
+      "url": "https://visub.oneflow.vn/editor/api/tmp/download-mp4-1734394889590/speech/49a353d7-ce98-4633-a6bd-48e5744d6b1d-1734590828.mp3",
+      "extension": "mp3",
+      "options": {
+        "start": 3.0,
+        "end": 3.912,
+        "duration": 0.912
+      }
+    }
+  ]
+}

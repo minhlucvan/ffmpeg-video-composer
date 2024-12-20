@@ -8,6 +8,7 @@ import Project from '../core/models/Project';
 import { Section } from '@/core/types';
 import MusicComposer from './MusicComposer';
 import CaptionComposer from './CaptionComposer';
+import AudioComposer from './AudioComposer';
 
 @injectable()
 class VideoEditor {
@@ -17,6 +18,7 @@ class VideoEditor {
     private readonly project: Project,
     private readonly template: Template,
     private readonly musicComposer: MusicComposer,
+    private readonly audioComposer: AudioComposer,
     private readonly captionComposer: CaptionComposer,
 
     @inject('logger') private readonly logger: AbstractLogger,
@@ -61,6 +63,11 @@ class VideoEditor {
       await this.musicComposer.loopMusic();
 
       await this.musicComposer.appendMusic(segments, this.project.finalVideo);
+    }
+
+    // append audio if any
+    if (this.template.descriptor.global.audioEnabled) {
+      await this.audioComposer.appendAudio(this.project.finalVideo);
     }
 
     // Burn captions if any

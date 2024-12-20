@@ -98,7 +98,7 @@ class AssetManager {
 
       await this.filesystemAdapter.move(path as string, targetPath);
     }
-  }
+  };
 
   fetchFonts = async (): Promise<void> => {
     for (let i = 0; i < this.segment.tempFonts.length; i++) {
@@ -148,13 +148,29 @@ class AssetManager {
     }
   };
 
+  fetchRetry = async (url: string, retries = 3): Promise<string> => {
+    let response = '';
+
+    for (let i = 0; i < retries; i++) {
+      try {
+        response = await this.filesystemAdapter.fetch(url);
+
+        break;
+      } catch (error) {
+        this.logger.error(`[${this.segment.currentSection.name}][Media] fetch error: ${error}`);
+      }
+    }
+
+    return response;
+  };
+
   fetchMedia = async (media: Media, frame = 0): Promise<void> => {
     const { name, url, extension } = this.extractFromMedia(media, frame);
 
     if (!this.template.assets.inputs[url]) {
       this.logger.info(`[${this.segment.currentSection.name}][Media] fetching asset ${name}`);
 
-      const path = await this.filesystemAdapter.fetch(url);
+      const path = await this.fetchRetry(url);
       const targetPath = `${this.segment.assetsDir}/${name}.${extension}`;
 
       this.logger.info(`[${this.segment.currentSection.name}][Media] moving asset ${name} to ${targetPath}`);

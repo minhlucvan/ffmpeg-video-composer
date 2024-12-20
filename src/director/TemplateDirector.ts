@@ -11,6 +11,7 @@ import Project from '../core/models/Project';
 import Template from '../core/models/Template';
 import TemplateConcreteBuilder from './TemplateConcreteBuilder';
 import CaptionComposer from '../editor/CaptionComposer';
+import AudioComposer from '../editor/AudioComposer';
 
 @injectable()
 class TemplateDirector {
@@ -24,6 +25,7 @@ class TemplateDirector {
     private readonly concreteBuilder: TemplateConcreteBuilder,
     private readonly musicComposer: MusicComposer,
     private readonly captionComposer: CaptionComposer,
+    private readonly audioComposer: AudioComposer,
     private readonly videoEditor: VideoEditor,
 
     private project: Project,
@@ -59,6 +61,7 @@ class TemplateDirector {
     try {
       await this.init();
 
+      await this.compileAudioSegments();
       await this.compileVideoSegments();
     } catch (err) {
       this.fireError(err);
@@ -71,6 +74,8 @@ class TemplateDirector {
 
   init = async (): Promise<void> => {
     this.project.buildInfos.fileConcatPath = `${this.filesystemAdapter.getBuildDir()}/segments.list`;
+
+    await this.audioComposer.loadAudios();
 
     await this.musicComposer.loadMusic();
 
@@ -95,6 +100,10 @@ class TemplateDirector {
     if (!this.stopBuild) {
       await this.finalizeCompilation(videoSegments);
     }
+  };
+
+  compileAudioSegments = async (): Promise<void> => {
+    await this.audioComposer.composeAudio();
   };
 
   filterVideoSections = (sections: Section[]): Section[] => {

@@ -46,7 +46,7 @@ class FilesystemNodeAdapter extends AbstractFilesystem {
       method: 'get',
       url,
       responseType: 'stream',
-      timeout: 90000,
+      timeout: 0,
     });
 
     const writer = createWriteStream(dest);

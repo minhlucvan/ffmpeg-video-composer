@@ -151,6 +151,12 @@ class CaptionComposer {
     if (result.rc === 1) {
       throw new Error('Error burning subtitles into the video');
     }
+
+    // cleaning temp file
+    this.logger.info(`[Captions] Cleaning up temporary file ${temp}`);
+    // await this.filesystemAdapter.unlink(temp).catch((error) => {
+    //   this.logger.error(`[Captions] Error cleaning up temporary file: ${error}`);
+    // });
   };
 }
 

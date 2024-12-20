@@ -26,6 +26,7 @@ class Project {
       videoInputs: [],
       musicInputs: [],
       musicFilters: [],
+      audiosSegments: [],
       fileConcatPath: '',
       musicPath: '',
     };

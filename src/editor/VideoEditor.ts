@@ -9,6 +9,7 @@ import { Section } from '@/core/types';
 import MusicComposer from './MusicComposer';
 import CaptionComposer from './CaptionComposer';
 import AudioComposer from './AudioComposer';
+import OverlayComposer from './OverlayComposer';
 
 @injectable()
 class VideoEditor {
@@ -20,6 +21,7 @@ class VideoEditor {
     private readonly musicComposer: MusicComposer,
     private readonly audioComposer: AudioComposer,
     private readonly captionComposer: CaptionComposer,
+    private readonly overlayComposer: OverlayComposer,
 
     @inject('logger') private readonly logger: AbstractLogger,
     @inject('ffmpegAdapter') private readonly ffmpegAdapter: AbstractFFmpeg,
@@ -68,6 +70,11 @@ class VideoEditor {
     // append audio if any
     if (this.template.descriptor.global.audioEnabled) {
       await this.audioComposer.appendAudio(this.project.finalVideo);
+    }
+
+    // Apply overlay if any
+    if (this.template.descriptor.global.blurEnabled) {
+      await this.overlayComposer.applyBlurBox(this.project.finalVideo);
     }
 
     // Burn captions if any

@@ -81,6 +81,7 @@ interface TemplateDescriptorGlobal {
   subtitlesEnabled?: boolean;
   subtitles?: SubtitleConfig;
   audioEnabled?: boolean;
+  blurEnabled?: boolean;
 }
 
 export interface Variables {

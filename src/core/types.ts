@@ -68,8 +68,24 @@ export interface TemplateDescriptor {
   global?: TemplateDescriptorGlobal;
   sections?: Section[];
   audios?: TimedMedia[];
+  overlays?: Overlay[];
 }
 
+
+export interface Overlay {
+  name: string;
+  type: 'color' | 'blur',
+  options: OverlayOptions;
+}
+
+export interface OverlayOptions {
+  color: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  blurStrength: number;
+}
 interface TemplateDescriptorGlobal {
   variables?: Variables;
   orientation?: string;

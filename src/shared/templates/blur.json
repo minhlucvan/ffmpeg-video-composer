@@ -13,6 +13,19 @@
     "blurEnabled": true,
     "transitionDuration": 0
   },
+  "overlays": [
+    {
+      "name": "blur 1",
+      "type": "blur",
+      "options": {
+        "x": 0,
+        "y": 0,
+        "width": 600,
+        "height": 400,
+        "blurStrength": 10
+      }
+    }
+  ],
   "sections": [
     {
       "name": "test_video_1",

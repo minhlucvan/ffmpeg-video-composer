@@ -21,28 +21,35 @@ class OverlayComposer {
     @inject('ffmpegAdapter') private readonly ffmpegAdapter: AbstractFFmpeg,
     @inject('filesystemAdapter') private readonly filesystemAdapter: AbstractFilesystem
   ) {}
-  /**
-   * Blur a box area in the video
-   * @param x Top-left x-coordinate of the box
-   * @param y Top-left y-coordinate of the box
-   * @param width Width of the box
-   * @param height Height of the box
-   * @param outputPath Path to save the blurred video
-   */
+
   blurBox = async (
     input: string,
     outputPath: string,
     x: number,
     y: number,
     width: number,
-    height: number
+    height: number,
+    blurStrength: number = 10
   ): Promise<string> => {
     this.logger.info('[BlurBox] Starting box blur process');
 
-    const command =
-      `-y -i ${input} ` +
-      `-vf "drawbox=x=${x}:y=${y}:w=${width}:h=${height}:color=black@0.0:t=fill,boxblur=luma_radius=10:luma_power=2" ` +
-      `-c:a copy ${outputPath}`;
+    // Validate inputs
+    if (x < 0 || y < 0 || width <= 0 || height <= 0 || blurStrength < 0) {
+      throw new Error('Invalid box dimensions, coordinates, or blur strength');
+    }
+
+    // Construct FFmpeg command
+    const filterComplex = [
+      `[0:v]crop=${width}:${height}:${x}:${y},avgblur=${blurStrength}[fg];`,
+      `[0:v][fg]overlay=${x}:${y}[v]`
+    ].join('');
+
+    const command = [
+      '-y',
+      `-i ${input}`,
+      `-filter_complex "${filterComplex}"`,
+      `-map "[v]" -map 0:a -c:v libx264 -c:a copy -movflags +faststart ${outputPath}`
+    ].join(' ');
 
     this.logger.debug(`[BlurBox][Command] ffmpeg ${command}`);
 
@@ -55,7 +62,25 @@ class OverlayComposer {
 
     await this.filesystemAdapter.move(outputPath, temp);
 
-    const command = await this.blurBox(temp, outputPath, 0, 0, 100, 100);
+    const overlays = this.template.descriptor.overlays;
+
+    if (!overlays) {
+      this.logger.info('[BlurBox] No overlays found in template descriptor');
+      return
+    }
+
+    const blurOverlay = overlays.find((overlay) => overlay.type === 'blur');
+
+    if (!blurOverlay) {
+      this.logger.info('[BlurBox] No blur overlay found in template descriptor');
+      return;
+    }
+
+    this.logger.info('[BlurBox] Applying blur overlay');
+    const { options: { x, y, width, height, blurStrength } } = blurOverlay;
+
+    this.logger.info(`[BlurBox] Applying blur overlay at x:${x}, y:${y}, width:${width}, height:${height}, strength:${blurStrength}`);
+    const command = await this.blurBox(temp, outputPath, x, y, width, height, blurStrength);
     const result = await this.ffmpegAdapter.execute(command);
 
     this.logger.info(`[BlurBox] ffmpeg process exited with rc ${result.rc}`);

@@ -1,4 +1,4 @@
-import { fancyTimeFormat } from '@/core/helpers/FormatHelper';
+import { fancyTimeFormat } from 'lib/core/helpers/FormatHelper';
 
 describe('fancyTimeFormat', () => {
   test('formats correctly without hours and milliseconds', () => {

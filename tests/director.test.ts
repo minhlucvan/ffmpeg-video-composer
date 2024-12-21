@@ -1,6 +1,6 @@
-import { ProjectConfig } from '@/core/types';
-import { compile, loadConfig } from '../src';
-import { main } from '@/main';
+import { ProjectConfig } from 'lib/core/types';
+import { compile, loadConfig } from '../lib';
+import { main } from 'lib/main';
 
 // Project Configuration
 const projectConfig: ProjectConfig = {

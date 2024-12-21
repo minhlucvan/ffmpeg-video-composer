@@ -1,8 +1,8 @@
 import 'reflect-metadata';
-import PlatformBridge from '@/platform/PlatformBridge';
-import FFmpegNodeAdapter from '@/platform/ffmpeg/FFmpegNodeAdapter';
-import MusicNodeAdapter from '@/platform/ffmpeg/MusicNodeAdapter';
-import FilesystemNodeAdapter from '@/platform/filesystem/FilesystemNodeAdapter';
+import PlatformBridge from 'lib/platform/PlatformBridge';
+import FFmpegNodeAdapter from 'lib/platform/ffmpeg/FFmpegNodeAdapter';
+import MusicNodeAdapter from 'lib/platform/ffmpeg/MusicNodeAdapter';
+import FilesystemNodeAdapter from 'lib/platform/filesystem/FilesystemNodeAdapter';
 
 describe('PlatformBridge', () => {
   let platformBridge: PlatformBridge;
